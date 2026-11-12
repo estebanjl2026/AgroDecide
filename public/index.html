@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#063b30" />
+  <meta name="description" content="AgroDecide: información climática pública y evaluación orientativa de cultivos para agricultura sostenible." />
+  <title>AgroDecide · Plataforma de análisis agrícola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="layout" id="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <a class="logo" href="#inicio" aria-label="AgroDecide - ir al inicio">
+        <span class="logo-mark">❧</span><span class="logo-word">AGRO<span>DECIDE</span><small>INTELIGENCIA AGRÍCOLA</small></span>
+      </a>
+      <div class="sidebar-label">PLATAFORMA</div>
+      <nav class="sidebar-nav">
+        <a href="#inicio" class="nav-item active" data-nav="inicio"><span class="nav-icon">⌂</span><span>Inicio</span></a>
+        <a href="#terreno" class="nav-item" data-nav="terreno"><span class="nav-icon">◈</span><span>Análisis de terreno</span></a>
+        <a href="#cultivos" class="nav-item" data-nav="cultivos"><span class="nav-icon">✿</span><span>Recomendaciones</span></a>
+        <a href="#rotacion" class="nav-item" data-nav="rotacion"><span class="nav-icon">↻</span><span>Rotación de cultivos</span></a>
+        <a href="#clima" class="nav-item" data-nav="clima"><span class="nav-icon">☼</span><span>Clima y pronóstico</span></a>
+        <a href="#fuentes" class="nav-item" data-nav="fuentes"><span class="nav-icon">◎</span><span>Fuentes y método</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="side-note"><span class="side-note-icon">✦</span><div><strong>Datos antes que suposiciones</strong><small>Un campo mejor informado comienza aquí.</small></div></div>
+        <button class="sidebar-help" id="helpButton" type="button">ⓘ &nbsp; Cómo funciona</button>
+        <small class="sidebar-footer">PROTOTIPO EDUCATIVO · 2026</small>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-left"><button type="button" id="menuToggle" class="icon-button menu-toggle" aria-label="Mostrar menú" aria-expanded="false">☰</button><span class="breadcrumb">Plataforma <span>/</span> <strong>Panel general</strong></span></div>
+        <div class="topbar-right"><span class="live-chip"><span class="pulse-dot"></span> FUENTES PÚBLICAS</span><span class="top-date" id="todayLabel">Actualizando fecha...</span><span class="user-avatar" title="Prototipo académico">AD</span></div>
+      </header>
+      <main class="content">
+        <section id="inicio" class="hero">
+          <div class="hero-copy"><div class="hero-kicker"><span class="hero-kicker-dot"></span> AGRICULTURA BASADA EN DATOS</div><h1>Decisiones más inteligentes.<br><em>Cultivos más sostenibles.</em></h1><p>Conoce el clima de tu terreno, compara cultivos y planea tu próxima siembra con información de fuentes científicas.</p><a href="#terreno" class="hero-cta">Analizar mi terreno <span>↗</span></a></div>
+          <div class="hero-art" aria-hidden="true"><div class="sun-disc"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><span class="hero-leaf leaf-one">◥</span><span class="hero-leaf leaf-two">◤</span><span class="hero-sprout">🌱</span><span class="hero-orbit">◌</span></div>
+        </section>
+
+        <div class="section-heading"><div><div class="eyebrow">TU CENTRO DE CONTROL</div><h2>Panel de análisis <span class="heading-highlight">agrícola</span></h2><p>Configura tu parcela y revisa la información disponible.</p></div><button class="button button-light" type="button" id="downloadButton" disabled>↧ &nbsp; Descargar resultados</button></div>
+
+        <section class="filters-card" id="terreno" aria-labelledby="configTitle">
+          <div class="filters-top"><div class="title-with-icon"><span class="icon-square">⌖</span><div><h3 id="configTitle">Mi terreno</h3><p>Indica la ubicación y lo que conoces de tu suelo</p></div></div><button type="button" id="geolocateButton" class="mini-btn">◎ Usar mi ubicación</button></div>
+          <form id="form" novalidate>
+            <div class="input-grid">
+              <label class="input-field">Latitud <input id="latitud" type="number" min="-90" max="90" step="any" required value="10.9685" /></label>
+              <label class="input-field">Longitud <input id="longitud" type="number" min="-180" max="180" step="any" required value="-74.7813" /></label>
+              <label class="input-field">pH del suelo <input id="ph" type="number" min="0" max="14" step="0.1" placeholder="Ej. 6.5 (opcional)" /></label>
+              <label class="input-field">Tipo de suelo <select id="textura"><option value="">No lo conozco</option><option value="franco">Franco</option><option value="franco-arenoso">Franco-arenoso</option><option value="arenoso">Arenoso</option><option value="arcilloso">Arcilloso</option></select></label>
+              <label class="input-field">Cultivo anterior <select id="anterior"><option value="">No lo conozco</option><option value="maiz">Maíz</option><option value="frijol">Frijol</option><option value="yuca">Yuca</option><option value="arroz">Arroz</option><option value="platano">Plátano</option><option value="papa">Papa</option></select></label>
+              <label class="input-field">Cultivo que quiero sembrar <select id="objetivo"><option value="maiz">🌽 Maíz</option><option value="arroz">🌾 Arroz</option><option value="frijol">🫘 Frijol</option><option value="yuca">🥔 Yuca</option><option value="platano">🍌 Plátano</option><option value="papa">🥔 Papa</option></select></label>
+            </div>
+            <div class="filters-footer"><div class="filters-helper">ⓘ El pH y el tipo de suelo deben provenir de tu información o análisis. No son mediciones de satélite.</div><div class="filters-actions"><label for="horizonte" class="period-label">Analizar próximos</label><select id="horizonte" class="period-select"><option value="2">2 días</option><option value="7" selected>7 días</option><option value="16">16 días</option></select><button type="submit" class="button button-primary" id="submit">✦ Analizar terreno</button></div></div>
+          </form>
+        </section>
+
+        <div class="status-area" id="status" role="status" aria-live="polite"><span class="status-dot"></span> Consulta el clima real para activar los indicadores.</div>
+
+        <section class="overview-grid" aria-label="Resultados y mapa">
+          <article class="panel map-panel"><div class="panel-heading"><div><span class="micro-label">VISTA GEOGRÁFICA</span><h3>Mapa de mi terreno</h3><p>Haz clic para cambiar el punto de análisis</p></div><div class="map-controls"><button class="chip-btn active" type="button" id="streetBtn">Mapa</button><button class="chip-btn" type="button" id="satelliteBtn">Satélite</button></div></div>
+            <div class="map-wrapper"><div id="map" aria-label="Mapa interactivo de ubicación del terreno"><div class="map-fallback">Cargando mapa interactivo…</div></div><div class="map-top-overlay"><span class="map-overlay-dot"></span><span id="mapCoords">10.9685° N, 74.7813° O</span></div><div class="map-bottom-overlay"><span class="map-legend-dot"></span> Ubicación de referencia · No es una parcela medida</div></div>
+            <div class="map-panel-footer"><span>⌖ &nbsp; Ubicación seleccionada en el mapa</span><button type="button" class="text-button" id="centerMap">Centrar mapa ↗</button></div>
+          </article>
+
+          <article class="panel summary-panel"><div class="panel-heading"><div><span class="micro-label">INDICADORES PRINCIPALES</span><h3>Estado del análisis</h3><p>Datos meteorológicos del punto elegido</p></div><div class="mini-plant">✿</div></div>
+            <div class="big-index"><div class="score-ring" id="scoreRing" style="--score:0"><div class="ring-center"><b id="scoreNumber">—</b><small>/ 100</small></div></div><div class="score-explain"><span class="score-tag">IDONEIDAD ORIENTATIVA</span><strong id="scoreCrop">Sin analizar</strong><p id="scoreNote">Selecciona un cultivo y consulta las fuentes.</p></div></div>
+            <div class="stats-grid"><div class="stat"><span class="stat-emoji">☀</span><div><small>Temperatura actual</small><strong id="metricTemp">—</strong></div></div><div class="stat"><span class="stat-emoji">◉</span><div><small>Humedad relativa</small><strong id="metricHumidity">—</strong></div></div><div class="stat"><span class="stat-emoji">☂</span><div><small>Lluvia actual</small><strong id="metricRain">—</strong></div></div><div class="stat"><span class="stat-emoji">≋</span><div><small>Viento</small><strong id="metricWind">—</strong></div></div></div>
+            <div class="summary-disclaimer">◈ Esta puntuación <strong>no es una probabilidad de cosecha</strong> ni mide la fertilidad real del suelo.</div>
+          </article>
+        </section>
+
+        <section id="cultivos" class="section-block"><div class="block-heading"><div><span class="eyebrow">RECOMENDACIONES INTELIGENTES</span><h2>¿Qué cultivo se adapta mejor?</h2><p>Comparación por clima pronosticado y datos del suelo suministrados.</p></div><span class="tag">6 cultivos evaluados</span></div>
+          <div class="crop-grid" id="cropGrid"><div class="empty-plant">🌱 Consulta el clima para comparar los cultivos.</div></div>
+          <div class="recommendation-panel panel" id="chosenPanel"><div class="recommendation-icon">✦</div><div><strong>Interpretación de la recomendación</strong><p id="chosenExplanation">Aquí aparecerán los factores evaluados y las limitaciones del modelo.</p><div class="factor-pills" id="factorPills"></div></div></div>
+        </section>
+
+        <section id="clima" class="section-block"><div class="block-heading"><div><span class="eyebrow">SEGUIMIENTO CLIMÁTICO</span><h2>Pronóstico y tendencias</h2><p>Datos de Open-Meteo para los próximos días.</p></div><span class="tag" id="forecastHorizon">7 días</span></div>
+          <div class="charts-grid"><article class="panel chart-panel"><div class="chart-head"><div><h3>Temperatura esperada</h3><p>Mínima y máxima diaria · °C</p></div><div class="chart-legend"><i class="legend-temp"></i> Máxima <i class="legend-min"></i> Mínima</div></div><div class="chart-canvas" id="temperatureChart"><div class="chart-empty">Esperando datos de temperatura…</div></div></article><article class="panel chart-panel"><div class="chart-head"><div><h3>Precipitación esperada</h3><p>Acumulado estimado por día · mm</p></div><div class="chart-legend"><i class="legend-rain"></i> Lluvia</div></div><div class="chart-canvas" id="rainChart"><div class="chart-empty">Esperando datos de lluvia…</div></div></article></div>
+          <div class="forecast-days" id="forecastDays"></div>
+        </section>
+
+        <section id="rotacion" class="section-block"><div class="block-heading"><div><span class="eyebrow">CUIDADO A LARGO PLAZO</span><h2>Rotación y salud del suelo</h2><p>Un punto de partida para pensar en el cultivo siguiente.</p></div></div>
+          <div class="rotation-grid"><article class="panel rotation-feature"><div class="rotation-illustration">↻</div><div><h3>No siembres siempre lo mismo</h3><p>La rotación puede ayudar a gestionar nutrientes, plagas y estructura del suelo. El orden ideal depende de tu zona, variedad, manejo y análisis agronómico.</p></div></article><article class="panel"><h3>Tu cultivo anterior</h3><div id="rotationText" class="rotation-text">Indica qué sembraste anteriormente para incluir ese factor en el análisis.</div><p class="small-muted">El cálculo actual usa una regla ilustrativa de rotación; todavía no simula ciclos futuros ni balances de nutrientes.</p></article></div>
+        </section>
+
+        <section id="fuentes" class="section-block"><div class="block-heading"><div><span class="eyebrow">TRANSPARENCIA DE DATOS</span><h2>Fuentes y metodología</h2><p>Siempre mostramos qué sabemos, qué estimamos y qué falta medir.</p></div></div>
+          <div class="sources-grid"><article class="source-card"><div class="source-icon blue">☁</div><div><strong>Open-Meteo</strong><p>Tiempo actual modelado y pronóstico de hasta 16 días.</p><a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Documentación ↗</a></div></article><article class="source-card"><div class="source-icon gold">✧</div><div><strong>NASA POWER</strong><p>Resumen histórico de temperatura y precipitación.</p><a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer">Portal oficial ↗</a></div></article><article class="source-card"><div class="source-icon green">❧</div><div><strong>Datos del agricultor</strong><p>pH, textura y cultivo anterior. No verificados por laboratorio.</p><span class="source-nonlink">Fuente: usuario</span></div></article></div>
+          <div class="disclosure" id="sourceDetails"><strong>Limitación científica:</strong> todavía no se han validado los rangos de cultivos ni las ponderaciones; la puntuación es didáctica y no estima rendimiento, fertilidad de suelo ni probabilidad de éxito. NASA aporta contexto histórico, no calcula la puntuación.</div>
+        </section>
+        <footer class="main-footer"><span>© 2026 AgroDecide · Prototipo académico para un desafío de innovación</span><span>Hecho para apoyar decisiones informadas, no reemplazar especialistas agrícolas.</span></footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="helpDialog" class="help-dialog"><div class="dialog-header"><h2>¿Cómo funciona AgroDecide?</h2><button type="button" id="closeHelp" class="icon-button" aria-label="Cerrar">✕</button></div><ol><li>Escoge la ubicación de tu terreno o haz clic en el mapa.</li><li>Introduce pH y textura solo si conoces estos valores.</li><li>Selecciona el cultivo anterior, el deseado y el periodo de análisis.</li><li>Pulsa <strong>Analizar terreno</strong> para consultar datos actuales de Open-Meteo e históricos de NASA POWER.</li><li>Compara los índices educativos y revisa la cobertura de factores.</li></ol><p>El índice no es una probabilidad ni sustituye una recomendación profesional.</p></dialog>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+  <script src="/script.js" defer></script>
+</body>
+</html>
